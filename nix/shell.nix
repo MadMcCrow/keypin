@@ -4,7 +4,7 @@ let
   # our project
   keypin = import ./keypin.nix args;
 
-  pythonBuild = with pkgs.python311Packages; [ build setuptools ];
+  pythonBuild = with pkgs.python311Packages; [ build setuptools nuitka ];
 
   # rust is required for commit hooks
 in
