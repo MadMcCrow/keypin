@@ -30,7 +30,7 @@ def read_file(path, binary = True) :
         print(f"[red]failed to read {path}:[/red] {E}")
         raise E
 
-def write_file(path, content, binary = True) :
+def write_file(path, content, binary = True, permission = 0o600 ) :
     try :
         os.makedirs(os.path.dirname(os.path.abspath(path)), exist_ok=True)
         with open(path, 'wb' if binary else 'wt') as f:
@@ -38,6 +38,8 @@ def write_file(path, content, binary = True) :
     except Exception as E:
         print(f"[red]failed to write {path}:[/red] {E}")
         raise E
+    else :
+        os.chmod(path, permission)
 
 def archive(archive_path : str, filename : str, content) :
     """
