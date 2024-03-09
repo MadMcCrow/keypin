@@ -8,7 +8,7 @@ import zipfile
 from lib import print
 
 def fix_path(path) :
-    return os.path.relpath(os.path.abspath(path))
+    return os.path.relpath(os.path.abspath(os.path.expanduser(path)))
 
 def make_path(directory, filename) :
     return fix_path(os.path.join(directory, filename))
@@ -49,7 +49,7 @@ def archive(archive_path : str, filename : str, content) :
         with zipfile.ZipFile(abspath, mode='a', compression=zipfile.ZIP_LZMA) as myzip :
             myzip.writestr(filename, content)
     except Exception as E:
-        print(f"[red]failed to compress {abspath}[/red]: {E}")
+        print(f"[red]Error:[/red] failed to compress {abspath}: {E}")
         raise E
 
 
@@ -61,9 +61,9 @@ def extract(archive_path : str, filename : str, binary = True) :
         content =  b'' if binary else ''
         abspath = os.path.abspath(archive_path)
         with zipfile.ZipFile(abspath, mode='r') as myzip :
-             with myzip.open(filename, mode = 'rb' if binary else 'rt') as myfile:
+             with myzip.open(filename, mode = 'r') as myfile:
                 content = myfile.read()
         return content
     except Exception as E:
-        print(f"[red]failed to compress {abspath}[/red]: {E}")
+        print(f"[red]Error:[/red] failed to extract {abspath}: {E}")
         raise

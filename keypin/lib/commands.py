@@ -28,7 +28,7 @@ def plant(hostname : str, user: str):
     pub = files.extract(config.archive,keypath)
     dest = f"{config.authorized_keys}/{keypath}"
     files.write_file(files.fix_path(dest), pub)
-    print(f"[green] key installed on [/green][bold]{gethostname()}[\bold]")
+    print(f"[green]Key installed: [/green][b]{dest}[\b]")
 
 def connect(hostname : str, user : str):
     keypath = f"{user}@{hostname}.pem"
@@ -36,3 +36,11 @@ def connect(hostname : str, user : str):
     files.write_file(keypath, priv)
     ssh.try_connect_to(keypath, hostname, user)
     files.delete(keypath)
+
+# TODO :
+def install(hostname : str, user : str):
+    keypath = f"{user}@{hostname}.priv"
+    priv = files.extract(config.archive,keypath)
+    dest = f"{config.stored_keys}/{keypath}"
+    files.write_file(files.fix_path(dest), priv)
+    print(f"[yellow]Private key installed and readable: [/yellow][b]{dest}[\b]")

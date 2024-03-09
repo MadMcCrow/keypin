@@ -5,4 +5,5 @@
 store = "./"
 archive = f"{store}/.keypin"
 config  = f"{store}/ssh.conf"
+stored_keys = "~/.ssh"
 authorized_keys = "~/.ssh/authorized_keys"

@@ -1,7 +1,12 @@
 # Keix:
 { pkgs, lib, flake, ... }:
+let
+  # shortcut and version setting
+  python = pkgs.python311;
+  pythonPackages = pkgs.python311Packages;
+in
 # zipapp command
-pkgs.stdenvNoCC.mkDerivation rec {
+pkgs.stdenv.mkDerivation rec {
   #
   name = "keypin";
   version = "0.1-alpha";
@@ -19,22 +24,24 @@ pkgs.stdenvNoCC.mkDerivation rec {
       ]);
   };
 
-  buildInputs = [ pkgs.python311 ]
-    ++ (with pkgs.python311Packages; [ pip rich cryptography bcrypt pexpect ]);
+  buildInputs = [ python ]
+    ++ (with pythonPackages; [ pip rich cryptography bcrypt pexpect ]);
 
-  nativeBuildInputs = [ pkgs.ensureNewerSourcesForZipFilesHook ] ++ buildInputs;
+  nativeBuildInputs = buildInputs
+    ++ (with pythonPackages; [ nuitka ])
+    ++ (with pkgs; [ ensureNewerSourcesForZipFilesHook ccache ccacheStdenv ]);
 
   buildPhase = ''
-    unset SOURCE_DATE_EPOCH
-      ${lib.getExe pkgs.python311} -m zipapp $src -o ${name}.pyz -c
-      ${lib.getExe pkgs.python311} -m zipapp $src -o ${name}.bin -p '/usr/bin/env python' -c
+    ${lib.getExe python} -m nuitka ./__main__.py \
+    --standalone --onefile \
+    --output-filename=${name}.bin
   '';
 
   installPhase = ''
-    install -m755 -D ./${name}.bin $out/bin/${name}.bin
-    install -m755 -D ./${name}.pyz $out/lib/${name}.pyz
-    echo "${lib.getExe  pkgs.python311} $out/lib/${name}.pyz" > $out/bin/${name}
+    mkdir $out/bin -p
+    cp ./* $out/bin
   '';
+
   meta = {
     mainProgram = "$out/bin/${name}";
     description = ''
