@@ -1,19 +1,28 @@
 # Keix:
-{ pkgs, lib, flake, ... }:
+{ pkgs, lib, flake }:
 let
   # shortcut and version setting
   python = pkgs.python311;
-  pythonPackages = pkgs.python311Packages;
+
+  pyinstaller = import ./pyinstaller.nix { inherit pkgs lib python; };
+
+  libraries = (with python.pkgs; [ rich cryptography bcrypt pexpect ]);
+  # TODO : make this a function available to other programs
+
+  # get the good stuff
+  mkCopyPythonCmd = pkg: target:
+    "cp -r ${pkg}/lib/python${python.pythonVersion}/site-packages/* ${target}";
+
+  # zipapp command
 in
-# zipapp command
-pkgs.stdenv.mkDerivation rec {
+pkgs.stdenvNoCC.mkDerivation rec {
   #
   name = "keypin";
   version = "0.1-alpha";
 
   # filter sources to only true pythonic
   src = lib.cleanSourceWith {
-    src = flake + "/${name}";
+    src = flake;
     filter = name: type:
       !(type != "directory" && !lib.strings.hasSuffix ".py" name) && !(type
       == "directory" && builtins.elem (baseNameOf name) [
@@ -24,22 +33,19 @@ pkgs.stdenv.mkDerivation rec {
       ]);
   };
 
-  buildInputs = [ python ]
-    ++ (with pythonPackages; [ pip rich cryptography bcrypt pexpect ]);
+  buildInputs = [ python pyinstaller ] ++ libraries;
 
-  nativeBuildInputs = buildInputs
-    ++ (with pythonPackages; [ nuitka ])
+  nativeBuildInputs = [ python ] ++ libraries
     ++ (with pkgs; [ ensureNewerSourcesForZipFilesHook ccache ccacheStdenv ]);
 
   buildPhase = ''
-    ${lib.getExe python} -m nuitka ./__main__.py \
-    --standalone --onefile \
-    --output-filename=${name}.bin
+    ${lib.getExe pyinstaller} __main__.py -F -name ${name}
   '';
 
   installPhase = ''
-    mkdir $out/bin -p
-    cp ./* $out/bin
+    ls -la
+    efef
+    install -Dm 755 ./${name}.pyz $out/lib/${name}
   '';
 
   meta = {

@@ -1,8 +1,8 @@
 # flake.nix
 # the flake responsible for all my systems and apps
 {
-  description = "MadMcCrow Systems configurations";
-  inputs.nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
+  description = "keypin a ssh key manager";
+  inputs = { nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable"; };
 
   outputs = { self, nixpkgs, ... }:
     let
@@ -20,7 +20,7 @@
       imp = module: system:
         (import module rec {
           pkgs = import nixpkgs { inherit system; };
-          lib = nixpkgs.lib;
+          inherit (nixpkgs) lib;
           flake = self;
         });
 
