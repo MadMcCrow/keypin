@@ -4,7 +4,6 @@
 #
 from cryptography.fernet import Fernet
 from hashlib import sha256
-from lib import print
 import codecs
 import os
 

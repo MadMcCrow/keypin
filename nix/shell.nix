@@ -4,7 +4,7 @@ let
   python = pkgs.python311;
 
   # our project
-  keypin = import ./keypin.nix args;
+  keypin = import ./keypin.nix {inherit pkgs lib flake python;};
 
   pythonBuild = with python.pkgs; [ build setuptools shiv ];
 

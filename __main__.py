@@ -8,14 +8,8 @@ from argparse import ArgumentParser as argparser
 from getpass import getuser
 from sys import exit
 
-# import sub-commands :
-from lib import commands
+from keypin import commands
 
-
-# replace all prints
-from lib import print
-import builtins
-builtins.print = print
 
 def makesubcommand(subparsers, name) :
     return subparsers.add_parser(name).set_defaults(

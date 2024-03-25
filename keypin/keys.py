@@ -6,8 +6,6 @@ from cryptography.hazmat.primitives import serialization as crypto_serialization
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey as private_key
 from cryptography.hazmat.backends import default_backend as crypto_default_backend
 
-from lib import print
-
 def CreateKeyPair(password : bytes):
     """
         Function that returns a new pair of keys in the form of bytes

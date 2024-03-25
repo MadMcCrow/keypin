@@ -5,12 +5,11 @@ from getpass import getpass
 from socket import gethostname
 
 # our helpers :
-from lib import keys
-from lib import files
-from lib import config
-from lib import ssh
-from lib import print
-from lib import encrypt
+from keypin import keys
+from keypin import files
+from keypin import config
+from keypin import ssh
+from keypin import encrypt
 
 def create(hostname : str, user : str) :
     """

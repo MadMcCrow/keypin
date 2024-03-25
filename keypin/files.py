@@ -5,8 +5,6 @@
 import os
 import zipfile
 
-from lib import print
-
 def fix_path(path) :
     return os.path.relpath(os.path.abspath(os.path.expanduser(path)))
 

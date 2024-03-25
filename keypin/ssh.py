@@ -7,8 +7,6 @@ import shlex
 import os
 import textwrap
 
-from lib import print
-
 def _subprocessWindows(command) :
     import wexpect
     child = wexpect.spawn(command)
