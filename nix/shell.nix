@@ -6,14 +6,10 @@ let
   # our project
   keypin = import ./keypin.nix args;
 
-  pyinstaller = import ./pyinstaller.nix { inherit pkgs lib python; };
-  zipapps = import ./zipapps.nix { inherit pkgs lib python; };
-
-
   pythonBuild = with python.pkgs; [ build setuptools shiv ];
 
   # rust is required for commit hooks
 in
 pkgs.mkShell {
-  buildInputs = keypin.nativeBuildInputs ++ pythonBuild ++ [ zipapps pyinstaller pkgs.rustup ];
+  buildInputs = keypin.nativeBuildInputs ++ pythonBuild ++ [ pkgs.rustup pkgs.rustc pkgs.cargo];
 }
