@@ -1,24 +1,47 @@
-from cx_Freeze import setup, Executable
+from cx_Freeze import setup, Executable, Freezer
 
-# Les dépendances sont automatiquement détectées, mais il peut être nécessaire de les ajuster.
-build_exe_options = {
-    "excludes": ["tkinter", "unittest"],
-    "zip_include_packages": ["keypin", "encodings", "rich", "bcrypt", "pexpect", "pyopenssl", "types-pyopenssl", "cryptography"],
-}
+inc = ['keypin', 'encodings', 'rich', 'bcrypt', 'pexpect', 'cryptography']
+exc = ['tkinter', 'unittest']
 
-with open("README.md", "r") as fh:
+with open('README.md', 'r') as fh:
     long_description = fh.read()
 
-setup(
-    name="keypin",
-    version="0.0.1",
-    author="MadMcCrow",
-    #author_email="please@dont",
-    options={"build_exe": build_exe_options},
-    executables=[Executable("__main__.py")],
-    # description
-    description="a SSH key manager",
-    long_description = long_description,
-    long_description_content_type="text/markdown",
-    url="https://github.com/MadMcCrow/keypin",
-)
+executables=[Executable('__main__.py')]
+
+# build = setup(
+#     name='keypin',
+#     version='0.0.1',
+#     author='MadMcCrow',
+#     #author_email='please@dont',
+#     options={'build_exe': {
+#         'optimize': 2,
+#         'excludes': exc,
+#         'zip_include_packages': inc,
+#     }},
+#     executables=executables,
+#     # description
+#     description='a SSH key manager',
+#     long_description = long_description,
+#     long_description_content_type='text/markdown',
+#     url='https://github.com/MadMcCrow/keypin',
+# )
+
+freezer = Freezer(
+        executables = executables,
+        #path = ["keypin"],
+        target_dir = 'dist',
+        compress = False,
+        optimize = 0,
+        includes = inc,
+        excludes = exc,
+        zip_include_packages=['keypin']
+    )
+freezer.freeze()
+
+import PyInstaller.__main__
+
+# this produces a single runnable binary :
+PyInstaller.__main__.run([
+    '__main__.py',
+    '--onefile'
+])

@@ -12,3 +12,5 @@ result
 
 # ignore build folder :
 build
+dist
+*.spec

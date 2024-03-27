@@ -1,15 +1,8 @@
 # Keix:
 { pkgs, lib, flake, python ? pkgs.python311 }:
 let
-  # a fixed freezer that won't complain about dates being before 1980 (store is epoch)
-  freezer = python.pkgs.cx_Freeze.overrideAttrs (final: prev: {
-    postInstall = ''
-      substituteInPlace $out/lib/python${python.pythonVersion}/site-packages/cx_Freeze/freezer.py \
-      --replace "mtime = int(file_stat.st_mtime) & 0xFFFF_FFFF" "mtime = int(time.time()) & 0xFFFF_FFFF"
-    '';
-  });
 
-  pymodules = with python.pkgs; [pip rich bcrypt pexpect pyopenssl types-pyopenssl cryptography] ++ [freezer];
+  pyinstaller = import ./pyinstaller.nix {inherit pkgs lib python;};
 
 in
 pkgs.stdenvNoCC.mkDerivation rec {
@@ -18,10 +11,11 @@ pkgs.stdenvNoCC.mkDerivation rec {
   version = "0.1-alpha";
 
   # filter sources to only true pythonic
+  # TODO : simplify this
   src = lib.cleanSourceWith {
     src = flake;
     filter = name: type:
-      !(type != "directory" && !lib.strings.hasSuffix ".py" name) && !(type
+      !(type != "directory" && !(builtins.any (x : lib.strings.hasSuffix x name) [".py" ".md" ".txt"])) && !(type
       == "directory" && builtins.elem (baseNameOf name) [
         "nix"
         ".pytest_cache"
@@ -30,16 +24,17 @@ pkgs.stdenvNoCC.mkDerivation rec {
       ]);
   };
 
-  buildInputs = [ python ];
 
-  nativeBuildInputs = [python ] ++ pymodules
-    ++ (with pkgs; [ tree ensureNewerSourcesForZipFilesHook]);
+  nativeBuildInputs = [ python pyinstaller]
+    ++ (with python.pkgs; [pip rich bcrypt pexpect pyopenssl types-pyopenssl cryptography])
+    ++ (with pkgs; [ glibc tree ensureNewerSourcesForZipFilesHook ]);
 
-  buildPhase = "${lib.getExe python} ./setup.py build";
+  buildPhase = ''
+    ${lib.getExe pyinstaller} __main__.py -F --clean -n keypin
+  '';
 
   installPhase = ''
-    ls -la
-    install -Dm 755 ${name}.pyz $out/lib/${name}.pyz
+    install -Dm 755 dist/keypin $out/bin/${name}
   '';
 
   meta = {
